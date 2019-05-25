@@ -24,13 +24,17 @@ RUN npm run ng build --prod --output-path=/app/dist
 ### Setup ###
 
 # base image
-FROM nginx:1.15.12-alpine
+FROM nginx:1.15.12-alpine as setup
 
 # optional
 #COPY ./nginx.conf /etc/nginx/conf.d/
 #RUN rm -rf /usr/share/nginx/html/*
 
 # copy built application
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist/AngularApp /usr/share/nginx/html
 
+# expose port
+EXPOSE 80
+
+# run nginx
 CMD ["nginx", "-g", "daemon off;"]
