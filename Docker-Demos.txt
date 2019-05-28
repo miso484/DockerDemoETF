@@ -1,0 +1,127 @@
+#### 3. KORISCENJE DOKER KOMANDNE LINIJE - DOKER KONTENJERI
+
+## UPRAVLJANJE DOKEROM
+docker --help
+docker search --help
+docker search alpine
+docker pull alpine
+docker pull alpine:3.9
+docker history alpine
+docker tag <ID> miso484/alpine
+docker images
+docker login
+docker push miso484/alpine
+https://cloud.docker.com/repository/list
+docker rmi miso484/alpine
+docker images
+docker pull miso484/alpine
+
+docker run --name alpine_detached -itd alpine:3.9
+docker attach alpine_detached
+<CTRL+P, CTRL+Q>
+docker run --name alpine_attached -it alpine:3.9
+<CTRL+P, CTRL+Q>
+docker stop alpine_attached
+docker start alpine_attached
+docker run --name alpine_cmd -it alpine:3.9 /bin/cat /etc/hosts
+
+## 4. NALAZENJE INFORMACIJA O DOKER KONTENJERIMA
+docker ps
+docker ps -a
+docker inspect alpine_detached
+docker logs alpine_detached
+
+## 5. NALAZENJE INFORMACIJA O DOKER IMIDZIMA
+docker images
+docker history alpine:3.9
+docker image inspect alpine:3.9
+
+## 6. EKSPORTOVANJE I IMPORTOVANJE DOKER KONTENJERA
+docker export -o ~/alpine_export.tar alpine_attached 
+docker import ~/alpine_export.tar
+docker images
+docker run -it --name alpine_imported <CONTAINER_ID> /bin/sh
+docker ps -a
+
+## 7. SNIMANJE I UCITAVANJE DOKER IMIDZA
+docker save -o ~/alpine_save.tar alpine:latest
+docker rmi alpine:latest
+docker images
+docker load -i ~/alpine_save.tar
+docker images
+
+## 8. BRISANJE DOKER KONTENJERA I IMIDZA
+docker rm alpine_cmd
+docker rm alpine_imported
+docker rm -f alpine_imported
+docker rmi alpine:3.9
+dockder rmi <CONTAINER_ID>
+docker rmi miso484/alpine
+docker rmi alpine:latest			//konflikt, kontenjeri su pokrenuti
+
+## 9. DOKER MREZE
+docker network ls
+docker network create demonet
+docker network ls
+docker run -itd --name alpine_nw --network demonet alpine:3.9
+docker inspect alpine_nw
+docker network inspect demonet
+docker network disconnect demonet alpine_nw
+docker inspect alpine_nw
+docker network inspect demonet
+docker rm -f alpine_nw
+
+## 10. DOKER VOLUMENI
+docker volume ls
+
+docker volume create demovolume
+docker run -it --name alpine_volume -v demovolume:/demovolume alpine:3.9
+  echo 'Poruka iz alpine_volume doker kontenjera' > /demovolume/alpine_volume.txt
+<CTRL+P><CTRL+Q>
+docker run -it --name alpine_volumefrom --volumes-from demovolume alpine:3.9
+  cat /demovolume/alpine_volume.txt
+<CTRL+P><CTRL+Q>
+
+docker run -it --name alpine_volumehost ~/volume:/homevolume alpine:3.9
+  echo 'Poruka iz alpine_volumehost doker kontenjera' > /homevolume/alpine_volumehome.txt
+
+
+#### DRUGI DIO
+cd ~
+git clone https://github.com/miso484/DockerDemoETF.git
+
+### 11. DOKER FAJL - DOKERIZOVANJE STATICKE HTML WEB STRANICE
+cd ~/DockerDemoETF/StaticHTML
+nano index.html
+nano Dockerfile
+docker build -t staticweb_image:1.0 .
+docker images
+docker run -itd --name staticweb_container -p 80:80 staticweb_image:1.0
+docker ps
+curl -i localhost:80
+
+## 12. Kako Doker pokrece aplikacije?
+
+## 13. 'Bildanje' i dokerizovanje Angular aplikacije
+cd ~/DockerDemoETF/AngularApp
+docker build -t angular_app:v1.1 .
+docker run -itd -p 8080:80 \
+  --restart unless-stopped \
+  --name angular_app angular_app:v1.1
+curl 127.0.0.1:8080
+
+## 14. N-TIER aplikacija i DOKER
+
+## 15. Docker Compose
+cd ~/DockerDemoETF/AngularApp
+nano docker-compose.yml
+docker-compose up -d
+curl -i localhost:8090
+docker-compose down
+
+## Dokerizovanje Angular, Dotnet Core, i SQL Server web aplikacije
+cd ~
+git clone https://github.com/miso484/DotNetCoreArchitecture.git
+cd ~/DotNetCoreArchitecture/
+nano dockerfile
+nano docker-compose.yml
